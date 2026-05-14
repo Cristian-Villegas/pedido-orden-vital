@@ -18,19 +18,18 @@
       <h2>&#9997; Firma la peticion</h2>
       <p>Completa tus datos para sumar tu voz al pedido</p>
       <form id="form">
-        <input type="hidden" name="acepto" id="acepVal" value="no">
         <div class="fila">
-          <div class="campo"><label>Nombre completo *</label><input name="nombre" required placeholder="Juan Perez"></div>
-          <div class="campo"><label>DNI *</label><input name="dni" required placeholder="12345678" inputmode="numeric"></div>
+          <div class="campo"><label>Nombre completo *</label><input id="nombre" required placeholder="Juan Perez"></div>
+          <div class="campo"><label>DNI *</label><input id="dni" required placeholder="12345678" inputmode="numeric"></div>
         </div>
         <div class="fila">
-          <div class="campo"><label>Telefono *</label><input name="telefono" required placeholder="261 123-4567" type="tel"></div>
-          <div class="campo"><label>Email</label><input name="email" placeholder="Opcional" type="email"></div>
+          <div class="campo"><label>Telefono *</label><input id="telefono" required placeholder="261 123-4567" type="tel"></div>
+          <div class="campo"><label>Email</label><input id="email" placeholder="Opcional" type="email"></div>
         </div>
-        <div class="campo"><label>Barrio / Zona *</label><input name="barrio" required placeholder="Paso Hondo, Lavalle"></div>
+        <div class="campo"><label>Barrio / Zona *</label><input id="barrio" required placeholder="Paso Hondo, Lavalle"></div>
         <div class="campo">
           <label>Como te relacionas con la zona? *</label>
-          <select name="rol" required>
+          <select id="rol" required>
             <option value="">Selecciona...</option>
             <option>Padre/Madre de alumno</option>
             <option>Vecino del barrio</option>
@@ -41,7 +40,7 @@
             <option>Otro</option>
           </select>
         </div>
-        <div class="campo"><label>Viviste alguna situacion de peligro? (opcional)</label><textarea name="comentario" rows="3" placeholder="Contanos tu experiencia..."></textarea></div>
+        <div class="campo"><label>Viviste alguna situacion de peligro? (opcional)</label><textarea id="comentario" rows="3" placeholder="Contanos tu experiencia..."></textarea></div>
         <button type="button" class="toggle-confirm" id="toggleBtn" onclick="toggleAcepto()">
           <span class="icono" id="toggleIco">&#9744;</span>
           <span>Confirmo que los datos son reales y autorizo su uso para el pedido formal ante las autoridades.</span>
@@ -53,14 +52,12 @@
     <footer>&#128737; Campana vecinal &middot; Paso Hondo y Lavalle &middot; 2026</footer>
   </div>
 </div>
-
 <div id="gracias">
   <div class="ico">&#9989;</div>
   <h2>Gracias por firmar!</h2>
   <p>Tu firma fue registrada.<br>Cada apoyo nos acerca a un cruce mas seguro.</p>
   <button onclick="location.reload()">&#8592; Firmar otra persona</button>
 </div>
-
 <script>
 var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRDJnwLxJdYr1RyhQwFHy5LViQ8Burp_tEZV6R9NXostUi_WHcZsLnEMQ5aW9-XSZA/exec";
 var aceptado = false;
@@ -69,20 +66,17 @@ function toggleAcepto() {
   aceptado = !aceptado;
   var btn = document.getElementById('toggleBtn');
   var ico = document.getElementById('toggleIco');
-  var val = document.getElementById('acepVal');
   if (aceptado) {
     btn.classList.add('activo');
     ico.innerHTML = '&#9989;';
-    val.value = 'si';
     document.getElementById('errorCheck').style.display = 'none';
   } else {
     btn.classList.remove('activo');
     ico.innerHTML = '&#9744;';
-    val.value = 'no';
   }
 }
 
-document.getElementById('form').addEventListener('submit', async function(e) {
+document.getElementById('form').addEventListener('submit', function(e) {
   e.preventDefault();
   if (!aceptado) {
     document.getElementById('errorCheck').style.display = 'block';
@@ -92,19 +86,29 @@ document.getElementById('form').addEventListener('submit', async function(e) {
   var btn = document.getElementById('btnEnviar');
   btn.disabled = true;
   btn.textContent = 'Enviando...';
-  var data = new FormData(this);
-  var params = new URLSearchParams();
-  data.forEach(function(v, k){ params.append(k, v); });
-  try {
-    await fetch(SCRIPT_URL, {method:'POST', body: params, mode:'no-cors'});
+
+  var params = new URLSearchParams({
+    nombre: document.getElementById('nombre').value,
+    dni: document.getElementById('dni').value,
+    telefono: document.getElementById('telefono').value,
+    email: document.getElementById('email').value,
+    barrio: document.getElementById('barrio').value,
+    rol: document.getElementById('rol').value,
+    comentario: document.getElementById('comentario').value
+  });
+
+  var img = new Image();
+  img.src = SCRIPT_URL + '?' + params.toString();
+  img.onload = img.onerror = function() {
     document.getElementById('pagina').style.display = 'none';
     document.getElementById('gracias').style.display = 'block';
     window.scrollTo(0, 0);
-  } catch(err) {
-    alert('Error al enviar (' + err.message + '). Intenta de nuevo.');
-    btn.disabled = false;
-    btn.textContent = '&#9997; FIRMAR PETICION';
-  }
+  };
+  setTimeout(function() {
+    document.getElementById('pagina').style.display = 'none';
+    document.getElementById('gracias').style.display = 'block';
+    window.scrollTo(0, 0);
+  }, 2000);
 });
 </script>
 </body></html>

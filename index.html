@@ -61,6 +61,7 @@
 <script>
 var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRDJnwLxJdYr1RyhQwFHy5LViQ8Burp_tEZV6R9NXostUi_WHcZsLnEMQ5aW9-XSZA/exec";
 var aceptado = false;
+var enviado = false;
 
 function toggleAcepto() {
   aceptado = !aceptado;
@@ -76,6 +77,14 @@ function toggleAcepto() {
   }
 }
 
+function mostrarGracias() {
+  if (enviado) return;
+  enviado = true;
+  document.getElementById('pagina').style.display = 'none';
+  document.getElementById('gracias').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
 document.getElementById('form').addEventListener('submit', function(e) {
   e.preventDefault();
   if (!aceptado) {
@@ -86,6 +95,7 @@ document.getElementById('form').addEventListener('submit', function(e) {
   var btn = document.getElementById('btnEnviar');
   btn.disabled = true;
   btn.textContent = 'Enviando...';
+  enviado = false;
 
   var params = new URLSearchParams({
     nombre: document.getElementById('nombre').value,
@@ -97,18 +107,19 @@ document.getElementById('form').addEventListener('submit', function(e) {
     comentario: document.getElementById('comentario').value
   });
 
-  var img = new Image();
-  img.src = SCRIPT_URL + '?' + params.toString();
-  img.onload = img.onerror = function() {
-    document.getElementById('pagina').style.display = 'none';
-    document.getElementById('gracias').style.display = 'block';
-    window.scrollTo(0, 0);
-  };
-  setTimeout(function() {
-    document.getElementById('pagina').style.display = 'none';
-    document.getElementById('gracias').style.display = 'block';
-    window.scrollTo(0, 0);
-  }, 2000);
+  var url = SCRIPT_URL + '?' + params.toString();
+
+  // Metodo fetch (PC)
+  fetch(url, {mode:'no-cors'}).then(mostrarGracias).catch(mostrarGracias);
+
+  // Metodo iframe (celular)
+  var f = document.createElement('iframe');
+  f.style.display = 'none';
+  f.src = url;
+  document.body.appendChild(f);
+
+  // Fallback garantizado a los 4 segundos
+  setTimeout(mostrarGracias, 4000);
 });
 </script>
 </body></html>

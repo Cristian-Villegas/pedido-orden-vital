@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Pedido de Orden Vital</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Arial,sans-serif;background:#0a0a0a;color:#fff}.alerta{background:#ffcc00;color:#000;text-align:center;padding:14px;font-weight:900;font-size:1.1em;text-transform:uppercase}.wrap{max-width:580px;margin:0 auto;padding:0 16px}h1{text-align:center;font-size:1.8em;font-weight:900;text-transform:uppercase;padding:24px 0 6px}.lugar{text-align:center;color:#ffcc00;font-weight:700;font-size:1.1em}.sub{text-align:center;color:#888;font-size:.9em;margin-top:4px;margin-bottom:16px}.mapa{border:3px solid #ff3333;border-radius:10px;overflow:hidden;margin-bottom:16px}.mapa iframe{width:100%;height:210px;display:block;border:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.card{background:#1a1a1a;border-radius:10px;padding:14px;text-align:center}.card .ico{font-size:1.6em}.card .tit{color:#ffcc00;font-weight:700;font-size:.85em;margin-top:4px}.card .det{color:#888;font-size:.8em;margin-top:2px}.pedido{background:#ff3333;border-radius:10px;padding:14px;text-align:center;font-weight:700;font-size:.9em;margin-bottom:12px}.aviso{border:2px solid #ff3333;border-radius:8px;padding:12px;text-align:center;color:#ff6666;font-weight:700;font-size:.9em;margin-bottom:20px}.caja{background:#1a1a1a;border-radius:12px;padding:22px;margin-bottom:20px}.caja h2{color:#ffcc00;font-size:1.2em;margin-bottom:4px}.caja p{color:#666;font-size:.85em;margin-bottom:18px}.fila{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:400px){.fila{grid-template-columns:1fr}}.campo{margin-bottom:16px}label{display:block;color:#ffcc00;font-weight:600;font-size:.88em;margin-bottom:5px}input,select,textarea{width:100%;padding:13px 14px;background:#0a0a0a;border:2px solid #444;border-radius:8px;color:#fff;font-size:1em;font-family:Arial,sans-serif;-webkit-appearance:none}input:focus,select:focus,textarea:focus{outline:none;border-color:#ffcc00}.toggle-confirm{width:100%;padding:16px;border-radius:10px;border:2px solid #555;background:#111;color:#888;font-size:.95em;font-weight:600;cursor:pointer;text-align:left;margin-bottom:6px;display:flex;align-items:center;gap:12px;line-height:1.4}.toggle-confirm .icono{font-size:1.6em;flex-shrink:0}.toggle-confirm.activo{background:#0a1f0a;border-color:#4ade80;color:#4ade80}.error-check{color:#ff4444;font-size:.83em;font-weight:700;margin-bottom:10px;display:none;padding:8px 12px;background:#1a0000;border-radius:6px;border:1px solid #ff3333}.boton{width:100%;padding:17px;background:#ff3333;color:#fff;border:none;border-radius:10px;font-size:1.15em;font-weight:900;text-transform:uppercase;cursor:pointer;margin-top:6px;letter-spacing:1px}.boton:disabled{background:#555;cursor:not-allowed}footer{text-align:center;color:#555;font-size:.85em;padding:24px 0}#gracias{display:none;text-align:center;padding:60px 20px}#gracias .ico{font-size:4em}#gracias h2{color:#4ade80;font-size:1.8em;margin:16px 0 10px}#gracias p{color:#888;line-height:1.6;margin-bottom:24px}#gracias button{padding:14px 28px;background:#ff3333;color:#fff;border:none;border-radius:10px;font-size:1em;font-weight:700;cursor:pointer}</style></head><body>
 <div id="pagina">
   <div class="alerta">&#9888; Todos estamos en peligro &#9888;</div>
@@ -58,10 +59,22 @@
   <p>Tu firma fue registrada.<br>Cada apoyo nos acerca a un cruce mas seguro.</p>
   <button onclick="location.reload()">&#8592; Firmar otra persona</button>
 </div>
+
+<form id="gform" target="hidden_iframe" method="POST"
+  action="https://docs.google.com/forms/u/0/d/e/1FAIpQLSe9sq4pT85OWpZMh3iGnpweCNK_P-fBNojassUc4KB18LnN_g/formResponse"
+  style="display:none">
+  <input name="entry.1415107382" id="g_nombre">
+  <input name="entry.485060007"  id="g_dni">
+  <input name="entry.1023623557" id="g_telefono">
+  <input name="entry.956774517"  id="g_email">
+  <input name="entry.1939448869" id="g_barrio">
+  <input name="entry.225854098"  id="g_rol">
+  <input name="entry.542987169"  id="g_comentario">
+</form>
+<iframe name="hidden_iframe" style="display:none"></iframe>
+
 <script>
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRDJnwLxJdYr1RyhQwFHy5LViQ8Burp_tEZV6R9NXostUi_WHcZsLnEMQ5aW9-XSZA/exec";
 var aceptado = false;
-var enviado = false;
 
 function toggleAcepto() {
   aceptado = !aceptado;
@@ -77,14 +90,6 @@ function toggleAcepto() {
   }
 }
 
-function mostrarGracias() {
-  if (enviado) return;
-  enviado = true;
-  document.getElementById('pagina').style.display = 'none';
-  document.getElementById('gracias').style.display = 'block';
-  window.scrollTo(0, 0);
-}
-
 document.getElementById('form').addEventListener('submit', function(e) {
   e.preventDefault();
   if (!aceptado) {
@@ -95,31 +100,22 @@ document.getElementById('form').addEventListener('submit', function(e) {
   var btn = document.getElementById('btnEnviar');
   btn.disabled = true;
   btn.textContent = 'Enviando...';
-  enviado = false;
 
-  var params = new URLSearchParams({
-    nombre: document.getElementById('nombre').value,
-    dni: document.getElementById('dni').value,
-    telefono: document.getElementById('telefono').value,
-    email: document.getElementById('email').value,
-    barrio: document.getElementById('barrio').value,
-    rol: document.getElementById('rol').value,
-    comentario: document.getElementById('comentario').value
-  });
+  document.getElementById('g_nombre').value    = document.getElementById('nombre').value;
+  document.getElementById('g_dni').value        = document.getElementById('dni').value;
+  document.getElementById('g_telefono').value   = document.getElementById('telefono').value;
+  document.getElementById('g_email').value      = document.getElementById('email').value;
+  document.getElementById('g_barrio').value     = document.getElementById('barrio').value;
+  document.getElementById('g_rol').value        = document.getElementById('rol').value;
+  document.getElementById('g_comentario').value = document.getElementById('comentario').value;
 
-  var url = SCRIPT_URL + '?' + params.toString();
+  document.getElementById('gform').submit();
 
-  // Metodo fetch (PC)
-  fetch(url, {mode:'no-cors'}).then(mostrarGracias).catch(mostrarGracias);
-
-  // Metodo iframe (celular)
-  var f = document.createElement('iframe');
-  f.style.display = 'none';
-  f.src = url;
-  document.body.appendChild(f);
-
-  // Fallback garantizado a los 4 segundos
-  setTimeout(mostrarGracias, 4000);
+  setTimeout(function() {
+    document.getElementById('pagina').style.display = 'none';
+    document.getElementById('gracias').style.display = 'block';
+    window.scrollTo(0, 0);
+  }, 2000);
 });
 </script>
 </body></html>
